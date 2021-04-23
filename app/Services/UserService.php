@@ -2,7 +2,7 @@
 
 namespace App\Services;
 
-use App\Repositories\UserRepository;
+use App\Contracts\UserRepositoryInterface;
 use Exceptions;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -21,7 +21,7 @@ class UserService
      *
      * @param App\Repositories\UserRepository $userRepository
      */
-    public function __construct(UserRepository $userRepository)
+    public function __construct(UserRepositoryInterface $userRepository)
     {
         $this->userRepository = $userRepository;
     }
@@ -29,14 +29,14 @@ class UserService
     /**
      * Store data into DB
      *
-     * @param array $data
+     * @param Illuminate\Http\Request $requestData
      * @return App\Models\User $user
      */
-    public function saveUserData($data)
+    public function saveUserData($requestData)
     {
-        $this->validateRequestData($data);
+        $this->validateRequestData($requestData);
 
-        $user = $this->userRepository->save($data);
+        $user = $this->userRepository->saveUser($requestData);
         return $user;
     }
 

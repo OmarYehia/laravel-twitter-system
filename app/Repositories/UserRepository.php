@@ -3,12 +3,13 @@
 namespace App\Repositories;
 
 use App\Models\User;
+use App\Contracts\UserRepositoryInterface;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 use Carbon\Carbon;
 use App\Traits\UploadTrait;
 
-class UserRepository
+class UserRepository implements UserRepositoryInterface
 {
     use UploadTrait;
 
@@ -30,24 +31,20 @@ class UserRepository
 
 
     /**
-     * Saves the post into database
+     * Saves the user into database
      *
-     * @param array $data
+     * @param Illuminate\Http\Request $requestData
      * @return App\Models\User
      */
-    public function save($data)
+    public function saveUser($requestData)
     {
         $user = new $this->user;
 
-        // $user->name = $data['name'];
-        // $user->password = Hash::make($data['password']);
-        // $user->email = $data['email'];
-        // $user->date_of_birth = $data['date_of_birth'];
-        $user->name = $data->name;
-        $user->password = Hash::make($data->password);
-        $user->email = $data->email;
-        $user->date_of_birth = $data->date_of_birth;
-        $user->image = $this->uploadImageToServer($data);
+        $user->name = $requestData->name;
+        $user->password = Hash::make($requestData->password);
+        $user->email = $requestData->email;
+        $user->date_of_birth = $requestData->date_of_birth;
+        $user->image = $this->uploadImageToServer($requestData);
 
         $user->save();
 
@@ -57,13 +54,13 @@ class UserRepository
     /**
      * Uploads image to /public/uploads/images
      *
-     * @param Illuminate\Http\Request $data
+     * @param Illuminate\Http\Request $requestData
      * @return String $filePath a file path to be saved in DB
      */
-    private function uploadImageToServer($data)
+    private function uploadImageToServer($requestData)
     {
-        $image = $data->file('image');
-        $nameSlug = Str::slug($data->name) . "_" . time();
+        $image = $requestData->file('image');
+        $nameSlug = Str::slug($requestData->name) . "_" . time();
         $folder = '/uploads/images/';
         $filePath = $folder . $nameSlug . "." . $image->getClientOriginalExtension();
         $file = $this->uploadOne($image, $folder, 'public', $nameSlug);
