@@ -5,6 +5,9 @@ namespace Tests\Feature;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 use App\Models\User;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Hash;
 
 class AuthenticationTest extends TestCase
 {
@@ -12,7 +15,7 @@ class AuthenticationTest extends TestCase
 
     public function test_required_fields_for_registration()
     {
-        $this->json('POST', 'api/users', ['Accept' => 'application/json'])
+        $this->json('POST', 'api/register', ['Accept' => 'application/json'])
         ->assertStatus(400)
         ->assertJson([
             "status" => 400,
@@ -26,7 +29,7 @@ class AuthenticationTest extends TestCase
         ]);
     }
 
-    public function test_password_length_constraint()
+    public function test_too_short_password_length_constraint()
     {
         $userData = [
             "name" => "Omar Yehia",
@@ -36,7 +39,7 @@ class AuthenticationTest extends TestCase
             "image" => "image.jpg"
         ];
 
-        $this->json('POST', 'api/users', $userData, ['Accept' => 'application/json'])
+        $this->json('POST', 'api/register', $userData, ['Accept' => 'application/json'])
         ->assertStatus(400)
         ->assertJson([
             "status" => 400,
@@ -46,7 +49,7 @@ class AuthenticationTest extends TestCase
         ]);
     }
 
-    public function test_date_of_birth_date_constraint()
+    public function test_inavalid_date_of_birth_date_constraint()
     {
         $userData = [
             "name" => "Omar Yehia",
@@ -56,13 +59,84 @@ class AuthenticationTest extends TestCase
             "image" => "image.jpg"
         ];
 
-        $this->json('POST', 'api/users', $userData, ['Accept' => 'application/json'])
-        ->assertStatus(400)
-        ->assertJson([
-            "status" => 400,
-            "errors" => [
-                "date_of_birth" => ["The date of birth is not a valid date."],
-            ]
+        $this->json('POST', 'api/register', $userData, ['Accept' => 'application/json'])
+            ->assertStatus(400)
+            ->assertJson([
+                "status" => 400,
+                "errors" => [
+                    "date_of_birth" => ["The date of birth is not a valid date."],
+                ]
+            ]);
+    }
+
+    public function test_successful_registeration()
+    {
+        Storage::fake('local');
+        $file = UploadedFile::fake()->create('file.jpg');
+
+        $userData = [
+            "name" => "Omar Yehia",
+            "email" => "example@example.com",
+            "password" => 12345678,
+            "date_of_birth" => "1994-09-04",
+            "image" => $file
+        ];
+
+        $this->json('POST', 'api/register', $userData, ['Accept' => 'application/json'])
+            ->assertStatus(201)
+            ->assertJsonStructure([
+                "status",
+                "user" => [
+                    "id",
+                    "name",
+                    "email",
+                    "date_of_birth",
+                    "image",
+                    "created_at",
+                    "updated_at"
+                ],
+            ])
+            ->assertCookie('access_token');
+    }
+
+    public function test_login_must_enter_email_and_password()
+    {
+        $this->json('POST', 'api/login')
+            ->assertStatus(400)
+            ->assertJson([
+                "status" => 400,
+                "errors" => [
+                    "email" => ["The email field is required."],
+                    "password" => ["The password field is required."],
+                ]
+            ]);
+    }
+
+    public function test_successful_login()
+    {
+        Storage::fake('local');
+        $image = UploadedFile::fake()->create('file.jpg');
+
+        $user = User::factory()->create([
+            'email' => 'sample@example.com',
+            'password' => Hash::make('testpassword'),
+            'image' => $image
         ]);
+
+        $loginData = ['email' => 'sample@example.com', 'password' => 'testpassword'];
+
+        $this->json('POST', 'api/login', $loginData, ['Accept' => 'application/json'])
+            ->assertStatus(200)
+            ->assertJsonStructure([
+               "user" => [
+                   'id',
+                   'name',
+                   'email',
+                   'created_at',
+                   'updated_at',
+               ],
+                "status",
+            ])
+            ->assertCookie('access_token');
     }
 }

@@ -2,7 +2,9 @@
 
 namespace App\Contracts;
 
+use Illuminate\Http\Request;
+
 interface UserRepositoryInterface
 {
-    public function saveUser(Illuminate\Http\Request $request);
+    public function saveUser(Request $request);
 }
