@@ -13,4 +13,6 @@ interface UserRepositoryInterface
     public function getUserFollowingsById($id);
     
     public function followUser($user, $followee);
+
+    public function getAllUsersWithTweets();
 }

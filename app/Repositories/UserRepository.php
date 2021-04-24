@@ -69,4 +69,9 @@ class UserRepository implements UserRepositoryInterface
     {
         return $user->followings()->attach($followee);
     }
+
+    public function getAllUsersWithTweets()
+    {
+        return User::with(['tweets'])->get();
+    }
 }

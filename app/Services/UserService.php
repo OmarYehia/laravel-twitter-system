@@ -86,6 +86,17 @@ class UserService
         return ["message" => "User followed successfuly."];
     }
 
+    public function getAllUsers()
+    {
+        // $this->validateAuthentication();
+
+        $users = $this->userRepository->getAllUsersWithTweets();
+        
+        return $users;
+    }
+
+
+
     private function validateIfFolloweeExists($followee_id)
     {
         $user = $this->userRepository->getUserById($followee_id);

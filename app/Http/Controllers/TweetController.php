@@ -32,8 +32,6 @@ class TweetController extends Controller
 
     public function store(Request $request)
     {
-        $result = [];
-
         try {
             $serviceResponse = $this->tweetService->saveTweetData($request);
             $result = $this->set_status_and_success_message(Response::HTTP_CREATED, $serviceResponse);

@@ -43,8 +43,6 @@ class UserController extends Controller
      */
     public function register(Request $request)
     {
-        $result = [];
-
         try {
             $serviceResponse = $this->userService->saveUserData($request);
             $result = $this->set_status_and_success_message(Response::HTTP_CREATED, $serviceResponse);
@@ -67,7 +65,6 @@ class UserController extends Controller
      */
     public function login(Request $request)
     {
-        $result = [];
         try {
             $serviceResponse = $this->userService->loginUser($request);
             $result = $this->set_status_and_success_message(Response::HTTP_OK, $serviceResponse);
@@ -91,8 +88,6 @@ class UserController extends Controller
 
     public function follow(Request $request, $followee_id)
     {
-        $result = [];
-
         try {
             $serviceResponse = $this->userService->followUser($request, $followee_id);
             $result = $this->set_status_and_success_message(Response::HTTP_OK, $serviceResponse);
