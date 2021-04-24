@@ -1,3 +1,17 @@
+# Table of Contents
+
+- [Quick installation](#quick-installation)
+- [Testing](#testing)
+    - [Expected result](#expected-result)
+    - [After testing](#after-testing-(important))
+- [API Documentation](#API-Documentation)
+    - [Register](#register)
+    - [Login](#login)
+    - [Friendships](#Friendships)
+    - [Tweets](#tweets)
+    - [Report](#report)
+
+---
 # Quick installation
 1- start by installing required dependencies with composer
 
@@ -23,6 +37,7 @@ php artisan migrate:fresh
 ```
 php artisan passport:install
 ```
+[Back to Top](#Table-of-Contents)
 <hr>
 
 # Testing
@@ -60,12 +75,15 @@ Tweeting (Tests\Feature\Tweeting)
  ```
  ## After testing (important)
  > Please make sure to run 
- ```php artisan migrate:fresh``` and ```php artisan passport:install``` again to test the api via external resource as Postman
+ ```php artisan migrate:fresh``` and ```php artisan passport:install``` again to test the api via external resource as Postman<br>
+ > It's advisable to use a testing database because the tables gets dropped after the tests
+
+[Back to Top](#Table-of-Contents)
 <hr>
  
 # API Documentation
 
-## Registration
+## Register
 > Register a new user
 
 `POST {{url}}/api/v1/register/` 
@@ -128,6 +146,7 @@ Tweeting (Tests\Feature\Tweeting)
     "errors": "Database error"
 }
 ```
+[Back to Top](#Table-of-Contents)
 <hr>
 
 ## Login
@@ -182,6 +201,7 @@ Tweeting (Tests\Feature\Tweeting)
     "errors": "Database error"
 }
 ```
+[Back to Top](#Table-of-Contents)
 <hr>
 
 ## Friendships
@@ -237,6 +257,7 @@ Request example:
     "errors": "Database error"
 }
 ```
+[Back to Top](#Table-of-Contents)
 <hr>
 
 ## Tweets
@@ -296,6 +317,7 @@ Authorization: Bearer {{authentication_token}}
     "errors": "Database error"
 }
 ```
+[Back to Top](#Table-of-Contents)
 <hr>
 
 ## Report
@@ -314,3 +336,4 @@ Authorization: Bearer {{authentication_token}}
     "errors": "Database error"
 }
 ```
+[Back to Top](#Table-of-Contents)
