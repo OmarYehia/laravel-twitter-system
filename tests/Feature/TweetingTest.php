@@ -12,7 +12,7 @@ class TweetingTest extends TestCase
 {
     use RefreshDatabase, CreateFakeUserTrait;
 
-    public function test_missing_text_while_adding_tweet()
+    public function test_required_fields_while_adding_tweet()
     {
         $user = $this->createFakeUser('sample@example.com');
         
@@ -26,7 +26,7 @@ class TweetingTest extends TestCase
         ]);
     }
 
-    public function test_tweets_bigger_than_140_characters()
+    public function test_deny_tweets_bigger_than_140_characters()
     {
         $tweet = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. In hendrerit lacus in sapien dapibus fermentum. Quisque in auctor ante orci aliquam.";
 

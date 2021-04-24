@@ -107,6 +107,31 @@ class AuthenticationTest extends TestCase
             ]);
     }
 
+    public function test_account_is_locked_after_too_many_login_attempts()
+    {
+        Storage::fake('local');
+        $image = UploadedFile::fake()->create('file.jpg');
+
+        $user = User::factory()->create([
+            'email' => 'sample@example.com',
+            'password' => Hash::make('testpassword'),
+            'image' => $image
+        ]);
+
+        $loginData = ['email' => 'sample@example.com', 'password' => 'wrongpassword'];
+
+        for ($i = 0; $i < 5; $i++) {
+            $this->json('POST', 'api/login', $loginData, ['Accept' => 'application/json']);
+        }
+
+        $this->json('POST', 'api/login', $loginData, ['Accept' => 'application/json'])
+            ->assertStatus(403)
+            ->assertJson([
+                "success" => false,
+                "errors" => "Too many login attemps. You're account is locked for 30 minutes."
+            ]);
+    }
+
     public function test_successful_login()
     {
         Storage::fake('local');

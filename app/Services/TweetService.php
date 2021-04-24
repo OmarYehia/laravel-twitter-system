@@ -27,9 +27,16 @@ class TweetService
         $this->tweetRepository = $tweetRepository;
     }
 
+
+    /**
+     * Saves tweet to database
+     *
+     * @param Illuminate\Http\Request $request
+     * @return array ["message" => "Tweet posted successfuly."]
+     */
     public function saveTweetData(Request $request)
     {
-        $this->validateAuthentication();
+        $this->getAuthenticatedUser();
 
         $this->validateTweetData($request);
 
@@ -40,6 +47,13 @@ class TweetService
         ];
     }
 
+
+    /**
+     * Validate the data provided by the user
+     * and throws an InvalidArgumentException upon failure
+     *
+     * @param Illuminate\Http\Request $request
+     */
     private function validateTweetData(Request $data)
     {
         $validator = Validator::make($data->all(), [

@@ -29,7 +29,12 @@ class TweetController extends Controller
         $this->tweetService = $tweetService;
     }
 
-
+    /**
+     * Stores the tweet in the database
+     *
+     * @param Illuminate\Http\Request $request
+     * @return Illuminate\Http\Response
+     */
     public function store(Request $request)
     {
         try {

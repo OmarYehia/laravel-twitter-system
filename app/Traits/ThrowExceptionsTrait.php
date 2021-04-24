@@ -8,6 +8,7 @@ trait ThrowExceptionsTrait
     /**
     * Throw JSON encoded errors array in an InvalidArgumentException
     *
+    * @throws InvalidArgumentException;
     */
     private function throw_JSON_invalid_argument_exception($errors)
     {

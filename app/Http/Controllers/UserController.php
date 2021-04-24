@@ -85,7 +85,13 @@ class UserController extends Controller
         return response()->json($result['response'], $result['status']);
     }
 
-
+    /**
+     * Makes the current authenticated user follow another user
+     *
+     * @param Illuminate\Http\Request $request
+     * @param int $followee_id
+     * @return Illuminate\Http\Response
+     */
     public function follow(Request $request, $followee_id)
     {
         try {

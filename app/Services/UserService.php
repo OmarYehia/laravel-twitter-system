@@ -62,6 +62,13 @@ class UserService
         ];
     }
 
+
+    /**
+     * Logs in the user
+     *
+     * @param Illuminate\Http\Request $requestData
+     * @return array ["access_token" => {value}]
+     */
     public function loginUser(Request $requestData)
     {
         $this->check_number_of_login_attempts($requestData);
@@ -73,11 +80,19 @@ class UserService
         return $this->return_successful_login_response();
     }
 
+
+    /**
+     * Follows another user in the system
+     *
+     * @param Illuminate\Http\Request $requestData
+     * @param int @followee_id
+     * @return array ["message" => "User followed successfuly."]
+     */
     public function followUser(Request $requestData, $followee_id)
     {
-        $user = $this->validateAuthentication();
+        $user = $this->getAuthenticatedUser();
 
-        $followee = $this->validateIfFolloweeExists($followee_id);
+        $followee = $this->getFollowee($followee_id);
 
         $this->validate_if_followee_is_already_followed($user, $followee_id);
 
@@ -86,18 +101,29 @@ class UserService
         return ["message" => "User followed successfuly."];
     }
 
+
+    /**
+     * Returns a collection of all users in the system
+     *
+     * @return Illuminate\Database\Eloquent\Collection $users
+     */
     public function getAllUsers()
     {
-        // $this->validateAuthentication();
-
         $users = $this->userRepository->getAllUsersWithTweets();
         
         return $users;
     }
 
 
-
-    private function validateIfFolloweeExists($followee_id)
+    /**
+     * Check if the user to be followed exist in the system or not
+     *
+     * @throws App\Exceptions\NotFoundException if followee is not found
+     * @throws App\Exceptions\BadRequestException if the user is trying to follow himself
+     *
+     * @return App\Models\User $user The user if they exists in the system
+     */
+    private function getFollowee($followee_id)
     {
         $user = $this->userRepository->getUserById($followee_id);
 
@@ -112,9 +138,16 @@ class UserService
         return $user;
     }
 
+
+    /**
+     * Check if the user is already following the followee
+     *
+     * @throws App\Exceptions\BadRequestException if the user is trying to follow same user again
+     */
     private function validate_if_followee_is_already_followed($user, $followee_id)
     {
         $userFollowings = $this->userRepository->getUserFollowingsById($user->id);
+        
         foreach ($userFollowings as $follower) {
             if ($follower->id == $followee_id) {
                 throw new BadRequestException("Followee is already followed.");
@@ -127,6 +160,7 @@ class UserService
      * Validate array of register data and throws exception if data is invalid
      *
      * @param Illuminate\Http\Request $data
+     * @throws App\Exceptions\InvalidArgumentsException
      */
     private function validateRegisterData(Request $data)
     {
@@ -148,6 +182,7 @@ class UserService
      * Validate array of login data and throws exception if data is invalid
      *
      * @param Illuminate\Http\Request $data
+     * @throws InvalidArgumentException
      */
     private function validateLoginData(Request $data)
     {
@@ -161,6 +196,13 @@ class UserService
         }
     }
 
+
+    /**
+     * Check number of login attempts and lock user out for
+     * 30 minutes if he's unsuccessful in login for 5 times
+     *
+     * @throws App\Exceptions\TooManyLoginAttempsException
+     */
     private function check_number_of_login_attempts(Request $request)
     {
         if ($this->hasTooManyLoginAttempts($request)) {
@@ -169,6 +211,11 @@ class UserService
         }
     }
 
+
+    /**
+     * Creates authentication token and return value
+     *
+     */
     private function return_successful_login_response()
     {
         $accessToken = auth()->user()->createToken('authToken')->accessToken;
@@ -177,6 +224,13 @@ class UserService
         ];
     }
 
+    /**
+     * Attempts to login user given credentials
+     *
+     * @param Illuminate\Http\Request
+     *
+     * @throws App\Exceptions\InvalidCredentialsException
+     */
     private function attempLogin(Request $request)
     {
         if (!auth()->attempt($request->all())) {

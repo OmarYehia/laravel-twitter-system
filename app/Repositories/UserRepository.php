@@ -55,21 +55,49 @@ class UserRepository implements UserRepositoryInterface
         return $user->fresh();
     }
 
+
+    /**
+     * Get user data from database
+     *
+     * @param int $id
+     * @return App\Models\User
+     */
     public function getUserById($id)
     {
         return User::find($id);
     }
 
+
+    /**
+     * Get users who are followed by the user with the id given
+     *
+     * @param int $id
+     * @return Illuminate\Database\Eloquent\Collection
+     */
     public function getUserFollowingsById($id)
     {
         return User::find($id)->followings()->get();
     }
 
+
+    /**
+     * Add the followee to the list of following for the user
+     *
+     * @param App\Models\User $user
+     * @param App\Models\User $followee person to be followed
+     * @return null
+     */
     public function followUser($user, $followee)
     {
         return $user->followings()->attach($followee);
     }
 
+
+    /**
+     * Get all users with their respective tweets
+     *
+     * @return Illuminate\Database\Eloquent\Collection
+     */
     public function getAllUsersWithTweets()
     {
         return User::with(['tweets'])->get();
