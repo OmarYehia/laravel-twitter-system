@@ -327,6 +327,9 @@ Authorization: Bearer {{authentication_token}}
 
 > Open this url from your browser to get a download subwindow
 
+> PDF example:
+![PDF Example](report.png)
+
 > Errors:
 
 * data_base_error `(Status: 500)`
