@@ -16,10 +16,7 @@ use App\Http\Controllers\TweetController;
 |
 */
 
-Route::middleware('auth:api')->get('/user', function (Request $request) {
-    return $request->user();
-});
-
 Route::post('/register', [UserController::class, 'register'])->name('users.register');
 Route::post('/login', [UserController::class, 'login'])->name('users.login');
 Route::post('/tweets', [TweetController::class, 'store'])->name('tweets.store');
+Route::post('/friendships/{id}', [UserController::class, 'follow'])->name('users.follow');

@@ -6,8 +6,8 @@ use Exception;
 
 class UnauthenticatedUserException extends Exception
 {
-    public function __concstruct($message)
+    public function __construct($message = "Unauthorized for this action.")
     {
-        parent::__concstruct($message);
+        parent::__construct($message);
     }
 }

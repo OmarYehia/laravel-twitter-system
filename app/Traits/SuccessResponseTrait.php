@@ -1,7 +1,7 @@
 <?php
 namespace App\Traits;
 
-trait ErrorsTrait
+trait SuccessResponseTrait
 {
     /**
     * Returns a formatted error message
@@ -10,13 +10,13 @@ trait ErrorsTrait
     * @param String $message
     * @return array associative array containing 'status' and 'response'
     */
-    private function set_status_and_error_message($status_code, $message)
+    private function set_status_and_success_message($status_code, $message)
     {
         return [
             'status' => $status_code,
             'response' => [
-                "success" => false,
-                "errors" => $message
+                "success" => true,
+                "data" => $message
             ]
         ];
     }

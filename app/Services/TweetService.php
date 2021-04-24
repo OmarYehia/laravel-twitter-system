@@ -35,7 +35,9 @@ class TweetService
 
         $tweet = $this->tweetRepository->saveTweet($request);
 
-        return $tweet;
+        return [
+            "message" => "Tweet posted successfuly."
+        ];
     }
 
 
@@ -43,7 +45,7 @@ class TweetService
     {
         $user = auth()->guard('api')->user();
         if (!$user) {
-            throw new UnauthenticatedUserException("Unauthorized for this action.");
+            throw new UnauthenticatedUserException();
         }
     }
 

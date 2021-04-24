@@ -9,17 +9,20 @@ use Exception;
 use InvalidArgumentException;
 use App\Exceptions\TooManyLoginAttemptsException;
 use App\Exceptions\InvalidCredentialsException;
+use App\Exceptions\UnauthenticatedUserException;
+use App\Exceptions\NotFoundException;
 use App\Traits\ErrorsTrait;
+use App\Traits\SuccessResponseTrait;
+use App\Exceptions\BadRequestException;
 
 class UserController extends Controller
 {
-    use ErrorsTrait;
+    use ErrorsTrait, SuccessResponseTrait;
 
     /**
      * @var userService
      */
     protected $userService;
-    private $_cookieExpirationDuration = 60 * 24 * 3; // 60 minutes * 24 hours * 3 i.e 3 days
 
 
     /**
@@ -44,8 +47,7 @@ class UserController extends Controller
 
         try {
             $serviceResponse = $this->userService->saveUserData($request);
-            $result['user'] = $serviceResponse['user'];
-            $result['status'] = Response::HTTP_CREATED;
+            $result = $this->set_status_and_success_message(Response::HTTP_CREATED, $serviceResponse);
         } catch (InvalidArgumentException $exception) {
             $errors = json_decode($exception->getMessage(), true);
             $result = $this->set_status_and_error_message(Response::HTTP_BAD_REQUEST, $errors);
@@ -54,8 +56,7 @@ class UserController extends Controller
             $result =  $this->set_status_and_error_message(Response::HTTP_INTERNAL_SERVER_ERROR, $errors);
         }
 
-        return response()->json($result, $result['status'])
-        ->cookie('access_token', isset($serviceResponse['access_token']) ? $serviceResponse['access_token'] : null, $this->_cookieExpirationDuration);
+        return response()->json($result['response'], $result['status']);
     }
 
     /**
@@ -69,8 +70,7 @@ class UserController extends Controller
         $result = [];
         try {
             $serviceResponse = $this->userService->loginUser($request);
-            $result['status'] = Response::HTTP_OK;
-            $result['user'] = $serviceResponse['user'];
+            $result = $this->set_status_and_success_message(Response::HTTP_OK, $serviceResponse);
         } catch (InvalidCredentialsException $exception) {
             $errors = $exception->getMessage();
             $result =  $this->set_status_and_error_message(Response::HTTP_UNAUTHORIZED, $errors);
@@ -85,7 +85,31 @@ class UserController extends Controller
             $result =  $this->set_status_and_error_message(Response::HTTP_INTERNAL_SERVER_ERROR, $errors);
         }
 
-        return response()->json($result, $result['status'])
-        ->cookie('access_token', isset($serviceResponse['access_token']) ? $serviceResponse['access_token'] : null, $this->_cookieExpirationDuration);
+        return response()->json($result['response'], $result['status']);
+    }
+
+
+    public function follow(Request $request, $followee_id)
+    {
+        $result = [];
+
+        try {
+            $serviceResponse = $this->userService->followUser($request, $followee_id);
+            $result = $this->set_status_and_success_message(Response::HTTP_OK, $serviceResponse);
+        } catch (UnauthenticatedUserException $exception) {
+            $errors = $exception->getMessage();
+            $result =  $this->set_status_and_error_message(Response::HTTP_UNAUTHORIZED, $errors);
+        } catch (NotFoundException $exception) {
+            $errors = $exception->getMessage();
+            $result =  $this->set_status_and_error_message(Response::HTTP_NOT_FOUND, $errors);
+        } catch (BadRequestException $exception) {
+            $errors = $exception->getMessage();
+            $result =  $this->set_status_and_error_message(Response::HTTP_BAD_REQUEST, $errors);
+        } catch (Exception $exception) {
+            $errors = $exception->getMessage();
+            $result =  $this->set_status_and_error_message(Response::HTTP_INTERNAL_SERVER_ERROR, $errors);
+        }
+
+        return response()->json($result['response'], $result['status']);
     }
 }

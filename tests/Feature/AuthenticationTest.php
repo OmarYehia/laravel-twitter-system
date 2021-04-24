@@ -19,7 +19,7 @@ class AuthenticationTest extends TestCase
         $this->json('POST', 'api/register', ['Accept' => 'application/json'])
         ->assertStatus(400)
         ->assertJson([
-            "status" => 400,
+            "success" => false,
             "errors" => [
                 "name" => ["The name field is required."],
                 "password" => ["The password field is required."],
@@ -43,14 +43,14 @@ class AuthenticationTest extends TestCase
         $this->json('POST', 'api/register', $userData, ['Accept' => 'application/json'])
         ->assertStatus(400)
         ->assertJson([
-            "status" => 400,
+            "success" => false,
             "errors" => [
                 "password" => ["The password must be at least 8 characters."],
             ]
         ]);
     }
 
-    public function test_inavalid_date_of_birth_date_constraint()
+    public function test_invalid_date_of_birth_date_constraint()
     {
         $userData = [
             "name" => "Omar Yehia",
@@ -63,7 +63,7 @@ class AuthenticationTest extends TestCase
         $this->json('POST', 'api/register', $userData, ['Accept' => 'application/json'])
             ->assertStatus(400)
             ->assertJson([
-                "status" => 400,
+                "success" => false,
                 "errors" => [
                     "date_of_birth" => ["The date of birth is not a valid date."],
                 ]
@@ -86,18 +86,12 @@ class AuthenticationTest extends TestCase
         $this->json('POST', 'api/register', $userData, ['Accept' => 'application/json'])
             ->assertStatus(201)
             ->assertJsonStructure([
-                "status",
-                "user" => [
-                    "id",
-                    "name",
-                    "email",
-                    "date_of_birth",
-                    "image",
-                    "created_at",
-                    "updated_at"
+                "success",
+                "data" => [
+                    "user_id",
+                    "access_token",
                 ],
-            ])
-            ->assertCookie('access_token');
+            ]);
     }
 
     public function test_login_must_enter_email_and_password()
@@ -105,7 +99,7 @@ class AuthenticationTest extends TestCase
         $this->json('POST', 'api/login')
             ->assertStatus(400)
             ->assertJson([
-                "status" => 400,
+                "success" => false,
                 "errors" => [
                     "email" => ["The email field is required."],
                     "password" => ["The password field is required."],
@@ -129,59 +123,10 @@ class AuthenticationTest extends TestCase
         $this->json('POST', 'api/login', $loginData, ['Accept' => 'application/json'])
             ->assertStatus(200)
             ->assertJsonStructure([
-               "user" => [
-                   'id',
-                   'name',
-                   'email',
-                   'created_at',
-                   'updated_at',
-               ],
-                "status",
-            ])
-            ->assertCookie('access_token');
-    }
-
-    public function test_missing_text_while_adding_tweet()
-    {
-        Storage::fake('local');
-        $image = UploadedFile::fake()->create('file.jpg');
-
-        $user = User::factory()->create([
-            'email' => 'sample@example.com',
-            'password' => Hash::make('testpassword'),
-            'image' => $image
-        ]);
-        
-        $this->actingAs($user, 'api')->json('POST', 'api/tweets', ['Accept' => 'application/json'])
-        ->assertStatus(400)
-        ->assertJson([
-            "status" => 400,
-            "errors" => [
-                "text" => ["The text field is required."],
-            ]
-        ]);
-    }
-
-    public function test_tweets_bigger_than_140_characters()
-    {
-        $tweet = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. In hendrerit lacus in sapien dapibus fermentum. Quisque in auctor ante orci aliquam.";
-
-        Storage::fake('local');
-        $image = UploadedFile::fake()->create('file.jpg');
-
-        $user = User::factory()->create([
-            'email' => 'sample@example.com',
-            'password' => Hash::make('testpassword'),
-            'image' => $image
-        ]);
-
-        $this->actingAs($user, 'api')->json('POST', 'api/tweets', ['text' => $tweet], ['Accept' => 'application/json'])
-        ->assertStatus(400)
-        ->assertJson([
-            "status" => 400,
-            "errors" => [
-                "text" => ["The text must not be greater than 140 characters."],
-            ]
-        ]);
+                "success",
+                "data" => [
+                    "access_token",
+                ],
+            ]);
     }
 }

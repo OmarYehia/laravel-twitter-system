@@ -46,25 +46,27 @@ class UserRepository implements UserRepositoryInterface
         $user->date_of_birth = $requestData->date_of_birth;
         $user->image = $this->uploadImageToServer($requestData);
 
-        $user->save();
+        try {
+            $user->save();
+        } catch (QueryException $e) {
+            throw new Exception('Database is currently down.');
+        }
 
         return $user->fresh();
     }
 
-    /**
-     * Uploads image to /public/uploads/images
-     *
-     * @param Illuminate\Http\Request $requestData
-     * @return String $filePath a file path to be saved in DB
-     */
-    private function uploadImageToServer($requestData)
+    public function getUserById($id)
     {
-        $image = $requestData->file('image');
-        $nameSlug = Str::slug($requestData->name) . "_" . time();
-        $folder = '/uploads/images/';
-        $filePath = $folder . $nameSlug . "." . $image->getClientOriginalExtension();
-        $file = $this->uploadOne($image, $folder, 'public', $nameSlug);
-                
-        return $filePath;
+        return User::find($id);
+    }
+
+    public function getUserFollowingsById($id)
+    {
+        return User::find($id)->followings()->get();
+    }
+
+    public function followUser($user, $followee)
+    {
+        return $user->followings()->attach($followee);
     }
 }

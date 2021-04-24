@@ -9,10 +9,11 @@ use Illuminate\Support\Facades\Auth;
 use App\Exceptions\UnauthenticatedUserException;
 use InvalidArgumentException;
 use App\Traits\ErrorsTrait;
+use App\Traits\SuccessResponseTrait;
 
 class TweetController extends Controller
 {
-    use ErrorsTrait;
+    use ErrorsTrait, SuccessResponseTrait;
     
     /**
      * @var tweetService
@@ -35,8 +36,7 @@ class TweetController extends Controller
 
         try {
             $serviceResponse = $this->tweetService->saveTweetData($request);
-            $result['tweet'] = $serviceResponse;
-            $result['status'] = Response::HTTP_CREATED;
+            $result = $this->set_status_and_success_message(Response::HTTP_CREATED, $serviceResponse);
         } catch (InvalidArgumentException $exception) {
             $errors = json_decode($exception->getMessage(), true);
             $result = $this->set_status_and_error_message(Response::HTTP_BAD_REQUEST, $errors);
@@ -48,6 +48,6 @@ class TweetController extends Controller
             $result =  $this->set_status_and_error_message(Response::HTTP_INTERNAL_SERVER_ERROR, $errors);
         }
 
-        return response()->json($result, $result['status']);
+        return response()->json($result['response'], $result['status']);
     }
 }

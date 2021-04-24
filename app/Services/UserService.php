@@ -3,7 +3,7 @@
 namespace App\Services;
 
 use App\Contracts\UserRepositoryInterface;
-use Exceptions;
+use Exception;
 use App\Exceptions\TooManyLoginAttemptsException;
 use App\Exceptions\InvalidCredentialsException;
 use Illuminate\Support\Facades\DB;
@@ -14,6 +14,9 @@ use Illuminate\Http\Request;
 use Illuminate\Foundation\Auth\ThrottlesLogins;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use App\Traits\ThrowExceptionsTrait;
+use App\Exceptions\UnauthenticatedUserException;
+use App\Exceptions\NotFoundException;
+use App\Exceptions\BadRequestException;
 
 class UserService
 {
@@ -53,7 +56,7 @@ class UserService
         $accessToken = $user->createToken('authToken')->accessToken;
 
         return [
-            'user' => $user,
+            'user_id' => $user->id,
             'access_token' => $accessToken
         ];
     }
@@ -70,6 +73,54 @@ class UserService
         }
 
         return $this->return_successful_login_response();
+    }
+
+    public function followUser(Request $requestData, $followee_id)
+    {
+        $user = $this->validateAuthentication();
+        $followee = $this->validateIfFolloweeExists($followee_id);
+
+        $this->validate_if_followee_is_already_followed($user, $followee_id);
+
+        $this->userRepository->followUser($user, $followee);
+
+        return ["message" => "User followed successfuly."];
+    }
+
+    private function validateAuthentication()
+    {
+        $user = auth()->guard('api')->user();
+
+        if (!$user) {
+            throw new UnauthenticatedUserException();
+        }
+
+        return $user;
+    }
+
+    private function validateIfFolloweeExists($followee_id)
+    {
+        $user = $this->userRepository->getUserById($followee_id);
+
+        if (!$user) {
+            throw new NotFoundException("Followee not found.");
+        }
+
+        if ($followee_id ==  auth()->guard('api')->user()->id) {
+            throw new BadRequestException("Can't follow self.");
+        }
+
+        return $user;
+    }
+
+    private function validate_if_followee_is_already_followed($user, $followee_id)
+    {
+        $userFollowings = $this->userRepository->getUserFollowingsById($user->id);
+        foreach ($userFollowings as $follower) {
+            if ($follower->id == $followee_id) {
+                throw new BadRequestException("Followee is already followed.");
+            }
+        }
     }
 
 
@@ -123,7 +174,6 @@ class UserService
     {
         $accessToken = auth()->user()->createToken('authToken')->accessToken;
         return [
-            'user' => auth()->user(),
             'access_token' => $accessToken
         ];
     }
