@@ -47,7 +47,10 @@ class TweetController extends Controller
             $errors = $exception->getMessage();
             $result = $this->set_status_and_error_message(Response::HTTP_UNAUTHORIZED, $errors);
         } catch (Exception $exception) {
-            $errors = $exception->getMessage();
+            $errors = "Database error";
+            if ($exception->getCode() !== 2002) {
+                $errors = $exception->getMessage();
+            }
             $result =  $this->set_status_and_error_message(Response::HTTP_INTERNAL_SERVER_ERROR, $errors);
         }
 

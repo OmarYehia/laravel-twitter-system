@@ -50,7 +50,10 @@ class UserController extends Controller
             $errors = json_decode($exception->getMessage(), true);
             $result = $this->set_status_and_error_message(Response::HTTP_BAD_REQUEST, $errors);
         } catch (Exception $exception) {
-            $errors = $exception->getMessage();
+            $errors = "Database error";
+            if ($exception->getCode() !== 2002) {
+                $errors = $exception->getMessage();
+            }
             $result =  $this->set_status_and_error_message(Response::HTTP_INTERNAL_SERVER_ERROR, $errors);
         }
 
@@ -78,7 +81,10 @@ class UserController extends Controller
             $errors = json_decode($exception->getMessage(), true);
             $result = $this->set_status_and_error_message(Response::HTTP_BAD_REQUEST, $errors);
         } catch (Exception $exception) {
-            $errors = $exception->getMessage();
+            $errors = "Database error";
+            if ($exception->getCode() !== 2002) {
+                $errors = $exception->getMessage();
+            }
             $result =  $this->set_status_and_error_message(Response::HTTP_INTERNAL_SERVER_ERROR, $errors);
         }
 
@@ -107,7 +113,10 @@ class UserController extends Controller
             $errors = $exception->getMessage();
             $result =  $this->set_status_and_error_message(Response::HTTP_BAD_REQUEST, $errors);
         } catch (Exception $exception) {
-            $errors = $exception->getMessage();
+            $errors = "Database error";
+            if ($exception->getCode() !== 2002) {
+                $errors = $exception->getMessage();
+            }
             $result =  $this->set_status_and_error_message(Response::HTTP_INTERNAL_SERVER_ERROR, $errors);
         }
 
