@@ -1,10 +1,25 @@
 # Quick installation
+1- start by installing required dependencies with composer
+
 ```
 composer install
 ```
+
+2- Create a new database and update you `.env` file with the required information
+
+```
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE={{DatabaseName}}
+DB_USERNAME=root
+DB_PASSWORD=
+```
+3- Make the required migrations
 ```
 php artisan migrate:fresh
 ```
+4- Use passport for authentication
 ```
 php artisan passport:install
 ```
@@ -14,7 +29,7 @@ php artisan passport:install
 ```
 composer test
 ```
-## Expected Result
+### Expected Result
 ```
 > vendor/bin/phpunit --testdox
 PHPUnit 9.5.4 by Sebastian Bergmann and contributors.
@@ -61,11 +76,13 @@ Tweeting (Tests\Feature\Tweeting)
 
 * Request body
 ```
-    image: undefined
-    name: "Omar Yehia"
-    password: "1234598798"
-    email: "admin@omar.com"
-    date_of_birth: "1994-09-04"
+{
+    "image": {{uploaded_image}}
+    "name": "Omar Yehia"
+    "password": "1234598798"
+    "email": "admin@omar.com"
+    "date_of_birth": "1994-09-04"
+}
 ```
 
 > Response example: `(Status: 201)`
@@ -124,8 +141,10 @@ Tweeting (Tests\Feature\Tweeting)
 
 * Request body
 ```
-    email: "admin@omar.com"
-    password: "1234598798"
+{
+    "email": "admin@omar.com"
+    "password": "1234598798"
+}
 ```
 
 > Response example: `(Status: 200)`
@@ -177,7 +196,7 @@ Authorization: Bearer {{authentication_token}}
 Request example:
 > User with id = 1 trying to follow user with id = 2
 
-`{{url}}/api/v1/login/2`
+`{{url}}/api/v1/friendships/2`
 
 > Response example: `(Status: 200)`
 ```
@@ -219,3 +238,79 @@ Request example:
 }
 ```
 <hr>
+
+## Tweets
+> Post a tweet
+
+`POST {{url}}/api/v1/tweets` 
+
+### Important: This is a protected route. You need to have authorization token.
+Requires Header:<br>
+Authorization: Bearer {{authentication_token}}
+
+> Request example:
+
+`{{url}}/api/v1/tweets`
+
+* Request body
+```
+{
+    "text": "Some tweet text less than 140 characters"
+}
+```
+
+> Response example: `(Status: 201)`
+```
+{
+    "success": true,
+    "data": {
+        "message": "Tweet posted successfuly."
+    }
+}
+```
+
+> Errors:
+* unauthenticated_user `(Status: 401)`
+```
+{
+    "success": false,
+    "errors": "Unauthorized for this action."
+}
+```
+* invalid_request `(Status: 400)`
+```
+{
+    "success": false,
+    "errors": {
+        "text": [
+            "The text must not be greater than 140 characters."
+        ]
+    }
+}
+```
+
+* data_base_error `(Status: 500)`
+```
+{
+    "success": false,
+    "errors": "Database error"
+}
+```
+<hr>
+
+## Report
+> Download a user report with users and their number of tweets and tweets/user average
+
+`GET {{url}}/api/v1/report/download` 
+
+> Open this url from your browser to get a download subwindow
+
+> Errors:
+
+* data_base_error `(Status: 500)`
+```
+{
+    "success": false,
+    "errors": "Database error"
+}
+```
