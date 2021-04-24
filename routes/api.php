@@ -4,6 +4,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\TweetController;
+use App\Http\Controllers\PdfController;
 
 /*
 |--------------------------------------------------------------------------
@@ -16,7 +17,8 @@ use App\Http\Controllers\TweetController;
 |
 */
 
-Route::post('/register', [UserController::class, 'register'])->name('users.register');
-Route::post('/login', [UserController::class, 'login'])->name('users.login');
-Route::post('/tweets', [TweetController::class, 'store'])->name('tweets.store');
-Route::post('/friendships/{id}', [UserController::class, 'follow'])->name('users.follow');
+Route::post('/register', [UserController::class, 'register']);
+Route::post('/login', [UserController::class, 'login']);
+Route::post('/tweets', [TweetController::class, 'store']);
+Route::post('/friendships/{id}', [UserController::class, 'follow']);
+Route::get('report/download', [PdfController::class, 'pdfDownload']);

@@ -4,14 +4,13 @@ namespace App\Services;
 
 use App\Contracts\TweetRepositoryInterface;
 use Illuminate\Http\Request;
-use App\Exceptions\UnauthenticatedUserException;
 use Illuminate\Support\Facades\Validator;
-use InvalidArgumentException;
 use App\Traits\ThrowExceptionsTrait;
+use App\Traits\ValidateAuthenticationTrait;
 
 class TweetService
 {
-    use ThrowExceptionsTrait;
+    use ThrowExceptionsTrait, ValidateAuthenticationTrait;
 
     /**
      * @var $tweetRepository
@@ -31,6 +30,7 @@ class TweetService
     public function saveTweetData(Request $request)
     {
         $this->validateAuthentication();
+
         $this->validateTweetData($request);
 
         $tweet = $this->tweetRepository->saveTweet($request);
@@ -38,15 +38,6 @@ class TweetService
         return [
             "message" => "Tweet posted successfuly."
         ];
-    }
-
-
-    private function validateAuthentication()
-    {
-        $user = auth()->guard('api')->user();
-        if (!$user) {
-            throw new UnauthenticatedUserException();
-        }
     }
 
     private function validateTweetData(Request $data)

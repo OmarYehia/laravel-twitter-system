@@ -14,13 +14,14 @@ use Illuminate\Http\Request;
 use Illuminate\Foundation\Auth\ThrottlesLogins;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use App\Traits\ThrowExceptionsTrait;
+use App\Traits\ValidateAuthenticationTrait;
 use App\Exceptions\UnauthenticatedUserException;
 use App\Exceptions\NotFoundException;
 use App\Exceptions\BadRequestException;
 
 class UserService
 {
-    use AuthenticatesUsers,ThrottlesLogins, ThrowExceptionsTrait;
+    use AuthenticatesUsers,ThrottlesLogins, ThrowExceptionsTrait, ValidateAuthenticationTrait;
 
     /**
      * @var $userRepository
@@ -67,10 +68,7 @@ class UserService
 
         $this->validateLoginData($requestData);
 
-        if (!auth()->attempt($requestData->all())) {
-            $this->incrementLoginAttempts($requestData);
-            throw new InvalidCredentialsException("Invalid credentials");
-        }
+        $this->attempLogin($requestData);
 
         return $this->return_successful_login_response();
     }
@@ -78,6 +76,7 @@ class UserService
     public function followUser(Request $requestData, $followee_id)
     {
         $user = $this->validateAuthentication();
+
         $followee = $this->validateIfFolloweeExists($followee_id);
 
         $this->validate_if_followee_is_already_followed($user, $followee_id);
@@ -85,17 +84,6 @@ class UserService
         $this->userRepository->followUser($user, $followee);
 
         return ["message" => "User followed successfuly."];
-    }
-
-    private function validateAuthentication()
-    {
-        $user = auth()->guard('api')->user();
-
-        if (!$user) {
-            throw new UnauthenticatedUserException();
-        }
-
-        return $user;
     }
 
     private function validateIfFolloweeExists($followee_id)
@@ -176,5 +164,13 @@ class UserService
         return [
             'access_token' => $accessToken
         ];
+    }
+
+    private function attempLogin(Request $request)
+    {
+        if (!auth()->attempt($request->all())) {
+            $this->incrementLoginAttempts($request);
+            throw new InvalidCredentialsException("Invalid credentials");
+        }
     }
 }
