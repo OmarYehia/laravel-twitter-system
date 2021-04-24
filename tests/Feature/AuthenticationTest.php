@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 use App\Models\User;
+use App\Models\Tweet;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Hash;
@@ -138,5 +139,49 @@ class AuthenticationTest extends TestCase
                 "status",
             ])
             ->assertCookie('access_token');
+    }
+
+    public function test_missing_text_while_adding_tweet()
+    {
+        Storage::fake('local');
+        $image = UploadedFile::fake()->create('file.jpg');
+
+        $user = User::factory()->create([
+            'email' => 'sample@example.com',
+            'password' => Hash::make('testpassword'),
+            'image' => $image
+        ]);
+        
+        $this->actingAs($user, 'api')->json('POST', 'api/tweets', ['Accept' => 'application/json'])
+        ->assertStatus(400)
+        ->assertJson([
+            "status" => 400,
+            "errors" => [
+                "text" => ["The text field is required."],
+            ]
+        ]);
+    }
+
+    public function test_tweets_bigger_than_140_characters()
+    {
+        $tweet = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. In hendrerit lacus in sapien dapibus fermentum. Quisque in auctor ante orci aliquam.";
+
+        Storage::fake('local');
+        $image = UploadedFile::fake()->create('file.jpg');
+
+        $user = User::factory()->create([
+            'email' => 'sample@example.com',
+            'password' => Hash::make('testpassword'),
+            'image' => $image
+        ]);
+
+        $this->actingAs($user, 'api')->json('POST', 'api/tweets', ['text' => $tweet], ['Accept' => 'application/json'])
+        ->assertStatus(400)
+        ->assertJson([
+            "status" => 400,
+            "errors" => [
+                "text" => ["The text must not be greater than 140 characters."],
+            ]
+        ]);
     }
 }

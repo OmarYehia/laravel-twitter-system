@@ -9,14 +9,19 @@ use Exception;
 use InvalidArgumentException;
 use App\Exceptions\TooManyLoginAttemptsException;
 use App\Exceptions\InvalidCredentialsException;
+use App\Traits\ErrorsTrait;
 
 class UserController extends Controller
 {
+    use ErrorsTrait;
+
     /**
      * @var userService
      */
     protected $userService;
     private $_cookieExpirationDuration = 60 * 24 * 3; // 60 minutes * 24 hours * 3 i.e 3 days
+
+
     /**
      * UserController constructor
      *
@@ -82,20 +87,5 @@ class UserController extends Controller
 
         return response()->json($result, $result['status'])
         ->cookie('access_token', isset($serviceResponse['access_token']) ? $serviceResponse['access_token'] : null, $this->_cookieExpirationDuration);
-    }
-
-    /**
-     * Returns a formatted error message
-     *
-     * @param Integer $status_code
-     * @param String $message
-     * @return array associative array containing 'status' and 'error'
-     */
-    private function set_status_and_error_message($status_code, $message)
-    {
-        return [
-            'status' => $status_code,
-            'errors' => $message
-        ];
     }
 }

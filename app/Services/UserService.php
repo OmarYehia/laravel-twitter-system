@@ -13,10 +13,11 @@ use InvalidArgumentException;
 use Illuminate\Http\Request;
 use Illuminate\Foundation\Auth\ThrottlesLogins;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
+use App\Traits\ThrowExceptionsTrait;
 
 class UserService
 {
-    use AuthenticatesUsers,ThrottlesLogins;
+    use AuthenticatesUsers,ThrottlesLogins, ThrowExceptionsTrait;
 
     /**
      * @var $userRepository
@@ -30,7 +31,7 @@ class UserService
     /**
      * UserService constructor
      *
-     * @param App\Repositories\UserRepository $userRepository
+     * @param App\Contracts\UserRepositoryInterface $userRepository
      */
     public function __construct(UserRepositoryInterface $userRepository)
     {
@@ -59,18 +60,16 @@ class UserService
 
     public function loginUser(Request $requestData)
     {
-        // Check number of login
         $this->check_number_of_login_attempts($requestData);
-        // Validate login data
+
         $this->validateLoginData($requestData);
-        // Get user from database
-        // Attempt login (Remember to block user for 30 minutes if invalid login)
+
         if (!auth()->attempt($requestData->all())) {
             $this->incrementLoginAttempts($requestData);
             throw new InvalidCredentialsException("Invalid credentials");
         }
+
         return $this->return_successful_login_response();
-        // Return login token?
     }
 
 
@@ -110,13 +109,6 @@ class UserService
         if ($validator->fails()) {
             $this->throw_JSON_invalid_argument_exception($validator->errors());
         }
-    }
-
-
-    private function throw_JSON_invalid_argument_exception($errors)
-    {
-        $errorArray = json_encode($errors);
-        throw new InvalidArgumentException($errorArray);
     }
 
     private function check_number_of_login_attempts(Request $request)
