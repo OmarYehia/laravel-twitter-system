@@ -16,7 +16,7 @@ class AuthenticationTest extends TestCase
 
     public function test_required_fields_for_registration()
     {
-        $this->json('POST', 'api/register', ['Accept' => 'application/json'])
+        $this->json('POST', 'api/v1/register', ['Accept' => 'application/json'])
         ->assertStatus(400)
         ->assertJson([
             "success" => false,
@@ -40,7 +40,7 @@ class AuthenticationTest extends TestCase
             "image" => "image.jpg"
         ];
 
-        $this->json('POST', 'api/register', $userData, ['Accept' => 'application/json'])
+        $this->json('POST', 'api/v1/register', $userData, ['Accept' => 'application/json'])
         ->assertStatus(400)
         ->assertJson([
             "success" => false,
@@ -60,7 +60,7 @@ class AuthenticationTest extends TestCase
             "image" => "image.jpg"
         ];
 
-        $this->json('POST', 'api/register', $userData, ['Accept' => 'application/json'])
+        $this->json('POST', 'api/v1/register', $userData, ['Accept' => 'application/json'])
             ->assertStatus(400)
             ->assertJson([
                 "success" => false,
@@ -83,7 +83,7 @@ class AuthenticationTest extends TestCase
             "image" => $file
         ];
 
-        $this->json('POST', 'api/register', $userData, ['Accept' => 'application/json'])
+        $this->json('POST', 'api/v1/register', $userData, ['Accept' => 'application/json'])
             ->assertStatus(201)
             ->assertJsonStructure([
                 "success",
@@ -96,7 +96,7 @@ class AuthenticationTest extends TestCase
 
     public function test_login_must_enter_email_and_password()
     {
-        $this->json('POST', 'api/login')
+        $this->json('POST', 'api/v1/login')
             ->assertStatus(400)
             ->assertJson([
                 "success" => false,
@@ -121,10 +121,10 @@ class AuthenticationTest extends TestCase
         $loginData = ['email' => 'sample@example.com', 'password' => 'wrongpassword'];
 
         for ($i = 0; $i < 5; $i++) {
-            $this->json('POST', 'api/login', $loginData, ['Accept' => 'application/json']);
+            $this->json('POST', 'api/v1/login', $loginData, ['Accept' => 'application/json']);
         }
 
-        $this->json('POST', 'api/login', $loginData, ['Accept' => 'application/json'])
+        $this->json('POST', 'api/v1/login', $loginData, ['Accept' => 'application/json'])
             ->assertStatus(403)
             ->assertJson([
                 "success" => false,
@@ -145,7 +145,7 @@ class AuthenticationTest extends TestCase
 
         $loginData = ['email' => 'sample@example.com', 'password' => 'testpassword'];
 
-        $this->json('POST', 'api/login', $loginData, ['Accept' => 'application/json'])
+        $this->json('POST', 'api/v1/login', $loginData, ['Accept' => 'application/json'])
             ->assertStatus(200)
             ->assertJsonStructure([
                 "success",

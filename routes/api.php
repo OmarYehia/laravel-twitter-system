@@ -17,8 +17,8 @@ use App\Http\Controllers\PdfController;
 |
 */
 
-Route::post('/register', [UserController::class, 'register']);
-Route::post('/login', [UserController::class, 'login']);
-Route::post('/tweets', [TweetController::class, 'store']);
-Route::post('/friendships/{id}', [UserController::class, 'follow']);
-Route::get('report/download', [PdfController::class, 'pdfDownload']);
+Route::post('v1/register', [UserController::class, 'register']);
+Route::post('v1/login', [UserController::class, 'login']);
+Route::post('v1/tweets', [TweetController::class, 'store']);
+Route::post('v1/friendships/{id}', [UserController::class, 'follow']);
+Route::get('v1/report/download', [PdfController::class, 'pdfDownload']);

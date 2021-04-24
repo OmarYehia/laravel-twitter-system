@@ -16,7 +16,7 @@ class TweetingTest extends TestCase
     {
         $user = $this->createFakeUser('sample@example.com');
         
-        $this->actingAs($user, 'api')->json('POST', 'api/tweets', ['Accept' => 'application/json'])
+        $this->actingAs($user, 'api')->json('POST', 'api/v1/tweets', ['Accept' => 'application/json'])
         ->assertStatus(400)
         ->assertJson([
             "success" => false,
@@ -32,7 +32,7 @@ class TweetingTest extends TestCase
 
         $user = $this->createFakeUser('sample@example.com');
 
-        $this->actingAs($user, 'api')->json('POST', 'api/tweets', ['text' => $tweet], ['Accept' => 'application/json'])
+        $this->actingAs($user, 'api')->json('POST', 'api/v1/tweets', ['text' => $tweet], ['Accept' => 'application/json'])
         ->assertStatus(400)
         ->assertJson([
             "success" => false,
@@ -48,7 +48,7 @@ class TweetingTest extends TestCase
 
         $user = $this->createFakeUser('sample@example.com');
 
-        $this->actingAs($user, 'api')->json('POST', 'api/tweets', ['text' => $tweet], ['Accept' => 'application/json'])
+        $this->actingAs($user, 'api')->json('POST', 'api/v1/tweets', ['text' => $tweet], ['Accept' => 'application/json'])
         ->assertStatus(201)
         ->assertJson([
             "success" => true,

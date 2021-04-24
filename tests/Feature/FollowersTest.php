@@ -19,7 +19,7 @@ class FollowersTest extends TestCase
     {
         $user = $this->createFakeUser('sample@example.com');
         
-        $this->json('POST', 'api/friendships/2', ['Accept' => 'application/json'])
+        $this->json('POST', 'api/v1/friendships/2', ['Accept' => 'application/json'])
         ->assertStatus(401)
         ->assertJson([
             "success" => false,
@@ -31,7 +31,7 @@ class FollowersTest extends TestCase
     {
         $user = $this->createFakeUser('sample@example.com');
         
-        $this->actingAs($user, 'api')->json('POST', 'api/friendships/' . $user->id, ['Accept' => 'application/json'])
+        $this->actingAs($user, 'api')->json('POST', 'api/v1/friendships/' . $user->id, ['Accept' => 'application/json'])
         ->assertStatus(400)
         ->assertJson([
             "success" => false,
@@ -44,9 +44,9 @@ class FollowersTest extends TestCase
         $user = $this->createFakeUser('sample@example.com');
         $user2 = $this->createFakeUser('sample2@example.com');
 
-        $this->actingAs($user, 'api')->json('POST', 'api/friendships/' . $user2->id, ['Accept' => 'application/json']);
+        $this->actingAs($user, 'api')->json('POST', 'api/v1/friendships/' . $user2->id, ['Accept' => 'application/json']);
         
-        $this->actingAs($user, 'api')->json('POST', 'api/friendships/' . $user2->id, ['Accept' => 'application/json'])
+        $this->actingAs($user, 'api')->json('POST', 'api/v1/friendships/' . $user2->id, ['Accept' => 'application/json'])
         ->assertStatus(400)
         ->assertJson([
             "success" => false,
@@ -59,7 +59,7 @@ class FollowersTest extends TestCase
         $user = $this->createFakeUser('sample@example.com');
         $user2 = $this->createFakeUser('sample2@example.com');
 
-        $this->actingAs($user, 'api')->json('POST', 'api/friendships/' . $user2->id, ['Accept' => 'application/json'])
+        $this->actingAs($user, 'api')->json('POST', 'api/v1/friendships/' . $user2->id, ['Accept' => 'application/json'])
         ->assertStatus(200)
         ->assertJson([
             "success" => true,
